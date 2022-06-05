@@ -1,4 +1,4 @@
-#include <random_generator.h>
+#include "random_generator.h"
 
 class RandomGenerator
 {

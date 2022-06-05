@@ -1,13 +1,9 @@
-#include <player.h>
+#include "player.h"
 
 class Player
 {
-    PlayerId id;
-    tcp::socket socket;
-    std::deque<char> buffer;
-    Score score;
-    std::string name;
-    
+    public: 
+
     void send_message(char data[])
     {
         send_message_to_player_by_socket(sock, data);
@@ -15,9 +11,11 @@ class Player
 
     size_t serialize_player(char data[])
     {
+        TODO
     }
 
     size_t serialize_accepted_player(char data[])
     {
+        TODO
     }
 }

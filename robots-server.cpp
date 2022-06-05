@@ -1,10 +1,26 @@
-#include <commandline_arguments.h>
-#include <event.h>
-#include <object_definitions.h>
-#include <player.h>
-#include <random_generator.h>
-#include <serialization_deserialization.h>
-#include <sending_messages.h>
+#include "commandline_arguments.h"
+#include "event.h"
+#include "object_definitions.h"
+#include "player.h"
+#include "random_generator.h"
+#include "serialization_deserialization.h"
+#include "sending_messages.h"
+
+class GameInfo
+{
+    public:
+
+    uint16_t turn_number;
+    std::vector<Position> blocks;
+    std::vector<Bomb> bombs;
+    std::vector<std::vector<Event>> events;
+
+    GameInfo()
+    {        
+        events = new std::vector<std::vector<Event>>(game_length);
+        TODO
+    }
+};
 
 class GameServer // odpowiednik server_info
 {
@@ -25,7 +41,6 @@ class GameServer // odpowiednik server_info
         size_x = args.get_size_x();
         size_y = args.get_size_y();
         random_generator = RandomGenerator(seed);
-        events = std::vector<std::vector<std::vector<Event>>(game_length);
         players_count = 0;
     }
 
@@ -42,29 +57,39 @@ class GameServer // odpowiednik server_info
     uint32_t seed;
     uint16_t size_x;
     uint16_t size_y;
-    uint16_t turn_number;
+    GameInfo current_game_info;
     RandomGenerator random_generator;
-    std::map<PlayerId, Player> connected_players; // na razie olejmy możliwość odłączania się graczy, bo gdyby mogli to mogliby wciąż być w grze, a tu nie, ale niech to będzie główny zbiór graczy
-    std::vector<std::vector<Event>> events;
+    std::map<PlayerId, Player> players; // na razie olejmy możliwość odłączania się graczy, bo gdyby mogli to mogliby wciąż być w grze, a tu nie, ale niech to będzie główny zbiór graczy
+
+
+    void send_turn_to_players(uint16_t turn_nr)
+    {
+        // wysyła do wszystkich, obserwatorów też
+        char data[BUFFER_LEN];
+        serialize_turn(turn_nr, data);
+        TODO
+    }
 
     void start_game()
     {
-        turn_number = 0;
+        current_game_info = new GameInfo();
+
+        current_game_info.turn_number = 0;
     
-        for (int i = 0; i < nr_players_for_game; i++)
+        for (int i = 0; i < players_count_for_game; i++)
         {
             // ponieważ gracze się nie odłączają to to są grający
             Position pos = random_generator.get_random_position(size_x, size_y);
             players[i].position = pos;
-            PlayerMoved(i, pos) event;
+            PlayerMoved event(i, pos);
             events[0].push_back(event);
         }
 
         for (int i = 0; i < initial_blocks; i++)
         {
             Position pos = random_generator.get_random_position(size_x, size_y);
-            blocks.push_back(pos);
-            BlockPlaced(i) event;
+            current_game_info.blocks.push_back(pos);
+            BlockPlaced event(pos);
             events[0].push_back(event);
         }
 
@@ -126,6 +151,7 @@ zwiększ nr_tury o 1 */
                 mutex.lock();
                 execute_turn();
             }
+            end_game();
         }
     }
 };

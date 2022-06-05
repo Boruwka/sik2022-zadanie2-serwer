@@ -1,4 +1,7 @@
-#include <object_definitions.h>
+#include <cstddef>
+#include <vector>
+
+#include "object_definitions.h"
 
 enum class EventType;
 
@@ -22,18 +25,20 @@ class BombPlaced : public Event
     BombId id;
     Position position;
     
-    size_t serialize(char data[]);
+    std::size_t serialize(char data[]);
 };
 
 class BombExploded : public Event
 {
-    public BombExploded(BombId id, std::vector<Position> blocks_destroyed, std::vector<PlayerId> robots_destroyed);
+    public:
+    
+    BombExploded(BombId id, std::vector<Position> blocks_destroyed, std::vector<PlayerId> robots_destroyed);
 
     BombId id;
     std::vector<Position> blocks_destroyed; 
     std::vector<PlayerId> robots_destroyed;
     
-    size_t serialize(char data[]);
+    std::size_t serialize(char data[]);
 };
 
 class PlayerMoved : public Event
@@ -45,7 +50,7 @@ class PlayerMoved : public Event
     PlayerId id;
     Position position;
     
-    size_t serialize(char data[]);
+    std::size_t serialize(char data[]);
 };
 
 class BlockPlaced : public Event
@@ -56,5 +61,5 @@ class BlockPlaced : public Event
 
     Position position;
     
-    size_t serialize(char data[]);
+    std::size_t serialize(char data[]);
 };

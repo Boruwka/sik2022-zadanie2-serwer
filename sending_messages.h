@@ -1,11 +1,13 @@
-using namespace boost::asio::ip::tcp;
+#include <boost/asio.hpp>
+
+using boost::asio::ip::tcp;
 
 enum class ClientMessageType
 {
     Join,
     PlaceBomb,
     PlaceBlock,
-    Move
+    Move,
     WrongMessage
 };
 
@@ -18,7 +20,7 @@ class ClientMessage
     Direction direction; // tylko dla move
 
     // konstruktor deserializujący
-    ClientMessage(char data[], endpoint client_endpoint);
+    ClientMessage(char data[]);
 };
 
 void send_message_to_player_by_socket(tcp::socket socket, char data[], size_t length);

@@ -1,8 +1,9 @@
-#include <commandline_arguments.h>
+#include "commandline_arguments.h"
 
 class CommandlineArguments
 {
     public:
+
 
     CommandlineArguments(int argc, char *argv[])
     {
@@ -37,6 +38,95 @@ class CommandlineArguments
         boost::program_options::store(
             boost::program_options::command_line_parser(argc, argv).options(description).run(), 
             parameter_map);
-        dalej_je_sprocesuj_i_do_jakichs_zmiennych();
+        
+        
+    }
+
+    uint16_t get_bomb_timer()
+    {
+        if (parameter_map.count("bomb-timer"))
+        {
+            return parameter_map["bomb-timer"].as<uint16_t>();
+        }
+    }
+
+    uint16_t get_players_count()
+    {
+        if (parameter_map.count("players-count"))
+        {
+            return parameter_map["players-count"].as<uint16_t>();
+        }
+    }
+
+    uint64_t get_turn_duration()
+    {
+        if (parameter_map.count("turn-duration"))
+        {
+            return parameter_map["turn-duration"].as<uint64_t>();
+        }
+    }
+
+    uint16_t get_explosion_radius()
+    {
+        if (parameter_map.count("explosion-radius"))
+        {
+            return parameter_map["explosion-radius"].as<uint16_t>();
+        }
+    }
+
+    uint16_t get_initial_blocks()
+    {
+        if (parameter_map.count("initial-blocks"))
+        {
+            return parameter_map["initial-blocks"].as<uint16_t>();
+        }
+    }
+
+    uint16_t get_game_length()
+    {
+        if (parameter_map.count("game-length"))
+        {
+            return parameter_map["game-length"].as<uint16_t>();
+        }
+    }
+
+    std::string get_server_name()
+    {
+        if (parameter_map.count("server-name"))
+        {
+            return parameter_map["server-name"].as<std::string>();
+        }
+    }
+
+    uint16_t get_port()
+    {
+        if (parameter_map.count("port"))
+        {
+            return parameter_map["port"].as<uint16_t>();
+        }
+    }
+
+    uint32_t get_seed()
+    {
+        if (parameter_map.count("seed"))
+        {
+            return parameter_map["seed"].as<uint32_t>();
+        }
+    }
+
+    uint16_t get_size_x()
+    {
+        if (parameter_map.count("size-x"))
+        {
+            return parameter_map["size-x"].as<uint16_t>();
+        }
+    }
+
+    uint16_t get_size_y()
+    {
+        if (parameter_map.count("size-y"))
+        {
+            return parameter_map["size-y"].as<uint16_t>();
+        }
     }
 };

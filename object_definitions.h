@@ -1,3 +1,12 @@
+#ifndef _OBJECT_DEFINITIONS
+#define _OBJECT_DEFINITIONS
+
+#include <cstdint>
+
+typedef uint32_t BombId;
+typedef uint8_t PlayerId;
+typedef uint32_t Score;
+
 enum class Direction
 {
     Up,
@@ -29,3 +38,6 @@ class Bomb
         this->position = position;
     }
 };
+
+
+#endif

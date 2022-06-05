@@ -1,4 +1,4 @@
-#include <serialization_deserialization.h>
+#include "serialization_deserialization.h"
 
 /* Deserializuje liczbę o rozmiarze size. */
 size_t deserialize_number(char data[], size_t size)
