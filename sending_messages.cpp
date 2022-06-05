@@ -1,3 +1,10 @@
+#include <sending_messages.h>
+
+class GameServer;
+GameServer game_server;
+
+using namespace boost::asio::ip::tcp;
+
 enum class ClientMessageType
 {
     Join,
@@ -41,35 +48,61 @@ class ClientMessage
     }
 };
 
+void send_message_to_player_by_socket(tcp::socket socket, char data[], size_t length);
+{
+    boost::asio::write(sock, boost::asio::buffer(data, length));
+}
+
+void push_array_to_players_deque()
+{
+    TODO
+}
+
 
 /* Pojedyncze połączenie po TCP. */
-void session(boost::asio::ip::tcp::tcp::socket sock)
+void session(tcp::socket sock)
 {
     try
     {
-        sock.set_option(boost::asio::ip::tcp::tcp::no_delay(true));
-        serialize_hello(data);
-        boost::asio::write(sock, boost::asio::buffer(data, length));
-        if (server_info.game_state == GameStateType::Lobby)
+        sock.set_option(tcp::no_delay(true));
+        game_server.mutex.lock();
+        size_t length = game_server.serialize_hello(data);
+        game_server.mutex.unlock();
+        send_message_to_player_by_socket(socket, data, length);        
+        ClientMessage join_message = wait_for_join(socket, data, length);
+        game_server.mutex.lock();
+
+        if (game_server.game_state == GameStateType::Lobby)
         {
-            for (auto player: server_info.current_lobby.accepted_players)
+            PlayerId id = game_server.add_player(join_message, socket); 
+                    game_server.players[id].serialize_accepted_player(data);
+            for (auto player: game_server.players)
             {
+                // wysyłamy innym info o tym
+                player.send_message(data);
+            }
+            for (auto player: game_server.players)
+            {
+                // wysyłamy temu info o innych
                 player.serialize_accepted_player(data);
-                boost::asio::write(sock, boost::asio::buffer(data, length));
+                game_server.players[id].send_message(data);
             }
         }
         else
         {
-            server_info.current_game.serialize_game_started(data);
-            boost::asio::write(sock, boost::asio::buffer(data, length));
-            for (int i = 0; i < turn_number; i++)
-            {
-                server_info.serialize_turn(data, i);
-                boost::asio::write(sock, boost::asio::buffer(data, length));
-                
-            }
+            /* [2] GameStarted {
+            players: Map<PlayerId, Player>, */
+            PlayerId id = game_server.add_player(join_message, socket); // dodajemy go jako obserwatora, na razie to oleję
+            size_t length = game_server.serialize_game_started(data);
+            send_message_to_player_by_socket(socket, data, length); // wysyłamy mu game started
+            
+            length = game_server.serialize_turns(data, 0, game_server.turn_number);
+            send_message_to_player_by_socket(socket, data, length); // wysyłamy mu get started
+            
         }
-        server_info.add_player(sock);
+        game_server.mutex.unlock();
+
+
         for (;;)
         {
             char data[MAX_LENGTH];
@@ -82,7 +115,7 @@ void session(boost::asio::ip::tcp::tcp::socket sock)
             else if (error)
                 throw boost::system::system_error(error);
 
-            server_info.react_to_client_message(data, length, sock);
+            push_array_to_players_deque(data, length);
             // ta funkcja wyżej wysyła też coś jemu jeśli chce
             //boost::asio::write(sock, boost::asio::buffer(data, length));
         }
@@ -94,11 +127,12 @@ void session(boost::asio::ip::tcp::tcp::socket sock)
 }
 
 /* Funkcja obsługująca nasłuchiwanie TCP. */
-void tcp_server(boost::asio::io_context& io_context, std::string address,
+void run_tcp_server(boost::asio::io_context& io_context,        
+    std::string address,
     unsigned short port)
 {
-    boost::asio::ip::tcp::tcp::resolver resolver(io_context);
-    boost::asio::ip::tcp::tcp::endpoint endpoint;
+    tcp::resolver resolver(io_context);
+    tcp::endpoint endpoint;
     try 
     {
         endpoint = *(resolver.resolve(address, std::to_string(port)));
@@ -110,8 +144,7 @@ void tcp_server(boost::asio::io_context& io_context, std::string address,
         exit(1);
     }
 
-    boost::asio::ip::tcp::tcp::acceptor 
-        a(io_context, boost::asio::ip::tcp::tcp::endpoint(endpoint));
+    tcp::acceptor a(io_context, tcp::endpoint(endpoint));
 
     for (;;)
     {

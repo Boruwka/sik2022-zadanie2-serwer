@@ -1,3 +1,5 @@
+#include <event.h>
+
 enum class EventType
 {
     BombPlaced,

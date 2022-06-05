@@ -16,9 +16,9 @@ endif ()
 set(GCC_COVERAGE_COMPILE_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(robots-server
-        robots-server.cpp
-        )
+add_executable(robots-server robots-server.cpp
+commandline_arguments.h sending_messages.h
+serialization_deserialization.h event.h random_generator.h)
 
 target_link_libraries(robots-server ${Boost_LIBRARIES} Threads::Threads)
 

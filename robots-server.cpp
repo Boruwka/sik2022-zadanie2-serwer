@@ -1,6 +1,33 @@
+#include <commandline_arguments.h>
+#include <event.h>
+#include <object_definitions.h>
+#include <player.h>
+#include <random_generator.h>
+#include <serialization_deserialization.h>
+#include <sending_messages.h>
+
 class GameServer // odpowiednik server_info
 {
     public:
+
+    GameServer(CommandlineArguments args)
+    {
+        mutex.lock();
+        bomb_timer = args.get_bomb_timer();
+        players_count_for_game = args.get_players_count();
+        turn_duration = args.get_turn_duration();
+        explosion_radius = args.get_explosion_radius();
+        initial_blocks = args.get_initial_blocks();
+        game_length = args.get_game_length();
+        server_name = args.get_server_name();
+        port = args.get_port();
+        seed = args.get_seed();
+        size_x = args.get_size_x();
+        size_y = args.get_size_y();
+        random_generator = RandomGenerator(seed);
+        events = std::vector<std::vector<std::vector<Event>>(game_length);
+        players_count = 0;
+    }
 
     std::mutex mutex; // biorą go pozostałe wątki, gdy chcą tu coś zmienić, ta go oddaje tylko jak zasypia
     uint16_t bomb_timer;
@@ -15,12 +42,15 @@ class GameServer // odpowiednik server_info
     uint32_t seed;
     uint16_t size_x;
     uint16_t size_y;
+    uint16_t turn_number;
     RandomGenerator random_generator;
     std::map<PlayerId, Player> connected_players; // na razie olejmy możliwość odłączania się graczy, bo gdyby mogli to mogliby wciąż być w grze, a tu nie, ale niech to będzie główny zbiór graczy
     std::vector<std::vector<Event>> events;
 
     void start_game()
     {
+        turn_number = 0;
+    
         for (int i = 0; i < nr_players_for_game; i++)
         {
             // ponieważ gracze się nie odłączają to to są grający
@@ -32,24 +62,13 @@ class GameServer // odpowiednik server_info
 
         for (int i = 0; i < initial_blocks; i++)
         {
-            
+            Position pos = random_generator.get_random_position(size_x, size_y);
+            blocks.push_back(pos);
+            BlockPlaced(i) event;
+            events[0].push_back(event);
         }
-        /* nr_tury = 0
-        zdarzenia = []
 
-        dla każdego gracza w kolejności id:
-            pozycja_x_robota = random() % szerokość_planszy
-            pozycja_y_robota = random() % wysokość_planszy
-            
-            dodaj zdarzenie `PlayerMoved` do listy
-            
-        tyle razy ile wynosi parametr `initial_blocks`:
-            pozycja_x_bloku = random() % szerokość_planszy
-            pozycja_y_bloku = random() % wysokość_planszy
-            
-            dodaj zdarzenie `BlockPlaced` do listy
-            
-        wyślij komunikat `Turn` */
+        send_turn_to_players(0);
     }
     
     void execute_turn()
@@ -100,9 +119,11 @@ zwiększ nr_tury o 1 */
             // mutex jest locked
             // gracze są w mapie
             start_game();
-            for (int turn_nr = 0; turn_nr < game_length; turn_nr++)
+            for (int i = 0; i < game_length; i++)
             {
+                mutex.unlock();
                 sleep(turn_duration);
+                mutex.lock();
                 execute_turn();
             }
         }
@@ -111,7 +132,8 @@ zwiększ nr_tury o 1 */
 
 int main(int argc, char *argv[])
 {
-    process_commandline_arguments();
+    CommandlineArguments arguments(argc, argv);
+    arguments.process_commandline_arguments();
     std::thread 
             tcp_server_thread([port_server, server_host_address]() 
             {
@@ -119,7 +141,7 @@ int main(int argc, char *argv[])
                 run_tcp_server(io_context, server_host_address, port_server); 
             });
     tcp_server_thread.detach();
-    GameServer game_server;
+    GameServer game_server(arguments);
     game_server.run_game_server();
     return 0;
 }

@@ -1,1 +1,4 @@
-class CommandlineArguments;
+class CommandlineArguments
+{
+    CommandlineArguments(int argc, char *argv[]);
+};

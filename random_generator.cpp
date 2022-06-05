@@ -1,3 +1,5 @@
+#include <random_generator.h>
+
 class RandomGenerator
 {
     public:

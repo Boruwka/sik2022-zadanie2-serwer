@@ -1,5 +1,9 @@
+#include <commandline_arguments.h>
+
 class CommandlineArguments
 {
+    public:
+
     CommandlineArguments(int argc, char *argv[])
     {
         boost::program_options::options_description description("App usage");
