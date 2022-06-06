@@ -14,13 +14,20 @@ class GameInfo
     std::vector<Position> blocks;
     std::vector<Bomb> bombs;
     std::vector<std::vector<Event>> events;
-
+    
     GameInfo()
+    {
+        // default konstruktor żeby się kompilator nie czepiał
+    }
+
+    GameInfo(uint16_t game_length)
     {        
-        events = new std::vector<std::vector<Event>>(game_length);
-        TODO
+        events = std::vector<std::vector<Event>>(game_length);
+        turn_number = 0;
     }
 };
+
+
 
 class GameServer // odpowiednik server_info
 {
@@ -62,6 +69,40 @@ class GameServer // odpowiednik server_info
     std::map<PlayerId, Player> players; // na razie olejmy możliwość odłączania się graczy, bo gdyby mogli to mogliby wciąż być w grze, a tu nie, ale niech to będzie główny zbiór graczy
 
 
+    size_t serialize_turns(char data[], uint16_t turn_nr, uint16_t begin, uint16_t end)
+    {
+        // serializuje tury od tury nr begin do tury nr end (wyłącznie po prawej)
+        // bo czasami możemy chcieć zserializować ich więcej niż jedną
+        // a turn_nr to jako jaki nr mamy wysłać (bo możemy chcieć np jako 0)
+        size_t pos = serialize_number(data, turn_nr, sizeof(turn_nr));
+
+        uint16_t number_of_events = 0; // sum of numbers of events in serialized turns
+        for (int i = begin; i < end; i++)
+        {
+            number_of_events += current_game_info.events[i].size();
+        }
+
+        pos += serialize_number(&(data[pos]), number_of_events, len_of_sizetype);
+
+        for (int i = begin; i < end; i++)
+        {
+            for (auto event: current_game_info.events[i])
+            {
+                pos += serialize_event(&(data[pos]), event);
+            }
+        }
+        
+    }
+
+    
+
+    size_t serialize_turn(char data[], uint16_t turn_nr)
+    {
+        // musi przyjmować turn nr bo możemy chcieć przesłać inną niż aktualna turę
+        return serialize_turns(data, turn_nr, turn_nr + 1);
+    }
+
+    
     void send_turn_to_players(uint16_t turn_nr)
     {
         // wysyła do wszystkich, obserwatorów też
@@ -72,7 +113,7 @@ class GameServer // odpowiednik server_info
 
     void start_game()
     {
-        current_game_info = new GameInfo();
+        current_game_info = GameInfo(this->game_length);
 
         current_game_info.turn_number = 0;
     

@@ -3,6 +3,9 @@
 
 #include <cstdint>
 
+const uint16_t BUFFER_LEN = 65535;
+const size_t len_of_sizetype = 4; // długość rozmiaru listy/mapy podczas serializacji
+
 typedef uint32_t BombId;
 typedef uint8_t PlayerId;
 typedef uint32_t Score;

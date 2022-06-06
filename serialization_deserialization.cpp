@@ -1,4 +1,5 @@
 #include "serialization_deserialization.h"
+#include "event.h"
 
 /* Deserializuje liczbę o rozmiarze size. */
 size_t deserialize_number(char data[], size_t size)
@@ -13,7 +14,7 @@ size_t deserialize_number(char data[], size_t size)
 }
 
 /* Serializuje numer o rozmiarze size do tablicy data. */
-void serialize_number(char data[], size_t number, size_t size)
+size_t serialize_number(char data[], size_t number, size_t size)
 {
     for (size_t i = 0; i < size; i++)
     {
@@ -25,6 +26,8 @@ void serialize_number(char data[], size_t number, size_t size)
         data[size - i - 1] = number % BYTE_SIZE;
         number /= BYTE_SIZE;       
     }
+
+    return size;
 }
 
 /* Serializuje string s do tablicy data.
@@ -120,4 +123,66 @@ Direction deserialize_direction(char data[])
     }
     return d;
     
+}
+
+size_t serialize_bomb_placed(BombPlaced e, char data[])
+{
+    /* [0] BombPlaced { id: BombId, position: Position }, */
+    size_t pos = 1;
+    data[0] = 0;
+    pos += serialize_number(&(data[pos]), e.id, sizeof(e.id));
+    pos += serialize_position(&(data[pos]), e.position);
+    return pos;
+}
+
+size_t serialize_bomb_exploded(BombExploded e, char data[])
+{
+    size_t pos = 1;
+    data[0] = 1;
+    pos += serialize_number(&(data[pos]), e.id, sizeof(e.id));
+    pos += serialize_number(&(data[pos]), e.robots_destroyed.size(), len_of_sizetype);
+    for (auto player_id: e.robots_destroyed)
+    {
+        pos += serialize_number(&(data[pos]), player_id, sizeof(player_id));
+    }
+
+    pos += serialize_number(&(data[pos]), e.blocks_destroyed.size(), len_of_sizetype);
+    for (auto block_position: e.blocks_destroyed)
+    {
+        pos += serialize_position(&(data[pos]), player_id);
+    }
+    return pos;
+    /* [1] BombExploded { id: BombId, robots_destroyed: List<PlayerId>, blocks_destroyed: List<Position> }, */
+     
+}
+
+
+size_t serialize_event(Event e, char data[])
+{
+    size_t pos = 1;
+
+    switch(e.type)
+    {
+        case (EventType::BombPlaced):
+            pos += serialize_bomb_placed(e, data);   
+            break;
+        case (EventType::BombExploded):
+            pos += serialize_bomb_exploded(e, data);
+            break;
+        case (EventType::PlayerMoved):
+            pos += serialize_player_moved(e, data);
+            break;
+        case (EventType::BlockPlaced):
+            pos += serialize_block_placed(e, data);
+            break;
+        default:
+            break;
+    };
+
+    return pos;
+    /* Event:
+[0] BombPlaced { id: BombId, position: Position },
+[1] BombExploded { id: BombId, robots_destroyed: List<PlayerId>, blocks_destroyed: List<Position> },
+[2] PlayerMoved { id: PlayerId, position: Position },
+[3] BlockPlaced { position: Position }, */
 }

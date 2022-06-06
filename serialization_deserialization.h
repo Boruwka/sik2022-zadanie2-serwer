@@ -2,7 +2,7 @@
 size_t deserialize_number(char data[], size_t size);
 
 /* Serializuje numer o rozmiarze size do tablicy data. */
-void serialize_number(char data[], size_t number, size_t size);
+size_t serialize_number(char data[], size_t number, size_t size);
 
 /* Serializuje string s do tablicy data.
 Zwracana wartość to długość całego zapisu stringa. */
@@ -19,3 +19,5 @@ size_t serialize_direction(Direction direction, char data[]);
 
 /* Deserializuje kierunek. */
 Direction deserialize_direction(char data[]);
+
+size_t serialize_event(Event e);
