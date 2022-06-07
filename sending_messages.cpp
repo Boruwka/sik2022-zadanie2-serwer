@@ -1,29 +1,7 @@
-#include <sending_messages.h>
+#include "sending_messages.h"
 
-class GameServer;
-GameServer game_server;
 
-using namespace boost::asio::ip::tcp;
-
-enum class ClientMessageType
-{
-    Join,
-    PlaceBomb,
-    PlaceBlock,
-    Move
-    WrongMessage
-};
-
-class ClientMessage
-{
-    public:
-
-    ClientMessageType type;
-    std::string name; // tylko dla join
-    Direction direction; // tylko dla move
-
-    // konstruktor deserializujący
-    ClientMessage(char data[], endpoint client_endpoint)
+ClientMessage::ClientMessage(char data[], endpoint client_endpoint)
     {
         switch(data[0])
         {
@@ -47,8 +25,7 @@ class ClientMessage
         };
     }
 
-    ClientMessage() {} // żeby się kompilator nie czepiał
-};
+    ClientMessage::ClientMessage() {} // żeby się kompilator nie czepiał
 
 void send_message_to_player_by_socket(tcp::socket socket, char data[], size_t length);
 {
@@ -129,9 +106,7 @@ void session(tcp::socket sock)
 }
 
 /* Funkcja obsługująca nasłuchiwanie TCP. */
-void run_tcp_server(boost::asio::io_context& io_context,        
-    std::string address,
-    unsigned short port)
+void run_tcp_server(boost::asio::io_context& io_context, unsigned short port)
 {
     tcp::resolver resolver(io_context);
     tcp::endpoint endpoint;

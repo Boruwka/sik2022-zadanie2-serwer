@@ -3,7 +3,11 @@
 
 #include <boost/asio.hpp>
 
+#include "object_definitions.h"
+
 using boost::asio::ip::tcp;
+
+class GameServer;
 
 enum class ClientMessageType
 {
@@ -33,11 +37,9 @@ void push_array_to_players_deque();
 
 
 /* Pojedyncze połączenie po TCP. */
-void session(tcp::socket sock);
+void session(tcp::socket sock, std::shared_ptr<GameServer> game_server);
 
 /* Funkcja obsługująca nasłuchiwanie TCP. */
-void run_tcp_server(boost::asio::io_context& io_context,        
-    std::string address,
-    unsigned short port);
+void run_tcp_server(boost::asio::io_context& io_context, unsigned short port, std::shared_ptr<GameServer> game_server);
 
 #endif

@@ -5,6 +5,7 @@
 #include "random_generator.h"
 #include "serialization_deserialization.h"
 #include "sending_messages.h"
+#include <set>
 
 class GameInfo
 {
@@ -18,6 +19,8 @@ class GameInfo
     std::map<PlayerId, bool> was_killed; // tylko przechowuje info tymczasowo, między śmiercią a odrodzeniem
     std::vector<PlayerId> players_playing;
     std::vector<std::vector<Square>> board;
+    BombId first_free_bomb_id;
+    
     
     GameInfo()
     {
@@ -44,6 +47,8 @@ class GameInfo
         {
             board[i] = std::vector<Square>(size_y);
         }
+
+        first_free_bomb_id = 0;
 
         
     }
@@ -346,13 +351,17 @@ current_game_info.board[players[id].position.x][players[id].position.y].players.
             case (ClientMessageType::PlaceBlock):
                 current_game_info.blocks.insert(players[id].position);
                 current_game_info.board[players[id].position.x][players[id].position.y].block = true;
+                e = BlockPlaced(players[id].position);
                 break;
-            case (ClientMessageType::PlaceBomb):
-                TODO
+            case (ClientMessageType::PlaceBomb):    
+                Bomb bomb(current_game_info.first_free_bomb_id, bomb_timer, players[id].position);
+                current_game_info.first_free_bomb_id++;
+                current_game_info.bombs[bomb.id] = bomb;
+                current_game_info.board[players[id].position.x][players[id].position.y].bombs.insert(bomb.id);
+                e = BombPlaced(bomb.id, players[id].position);
                 break;
                 
-        }
-        TODO    
+        } 
         // aktualizuje planszę, playersów i całe current_game_info
         // przypisujemy to zmiennej e
         return true;
@@ -383,8 +392,12 @@ current_game_info.board[players[id].position.x][players[id].position.y].players.
             }
             else
             {
-                Event move = execute_players_action(player);
+                Event move;
+                if(execute_players_action(id, move))
+                {
                 current_game_info.events[current_game_info.turn_number].push_back(move);  
+                }
+               
             }
         }
 
@@ -450,14 +463,15 @@ current_game_info.board[players[id].position.x][players[id].position.y].players.
 int main(int argc, char *argv[])
 {
     CommandlineArguments arguments(argc, argv);
+    uint16_t port = arguments.get_port();
+    std::shared_ptr<GameServer> game_server = std::make_shared<GameServer>(arguments);
     std::thread 
-            tcp_server_thread([port_server, server_host_address]() 
+            tcp_server_thread([port, game_server]() 
             {
                 boost::asio::io_context io_context;
-                run_tcp_server(io_context, arguments.get_client_address(), arguments.get_port()); 
+                run_tcp_server(io_context, port, game_server); 
             });
     tcp_server_thread.detach();
-    GameServer game_server(arguments);
-    game_server.run_game_server();
+    game_server->run_game_server();
     return 0;
 }

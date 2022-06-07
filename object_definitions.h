@@ -27,6 +27,20 @@ class Position
     uint16_t y;
 
     Position(uint16_t x, uint16_t);
+    Position() {}
+
+    Position(const Position& other)
+    {
+        x = other.x;
+        y = other.y;
+        // konstruktor kopiujący
+    }
+
+    auto operator<=>(const Position& other) const 
+    {
+        return this->x <=> other.x;
+        // żeby się kompilator odczepił jak robię seta
+    }
 };
 
 class Bomb
@@ -38,6 +52,8 @@ class Bomb
     Position position;
     
     Bomb(BombId id, uint16_t bomb_timer, Position position);
+
+    Bomb() {}
 };
 
 class Square

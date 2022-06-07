@@ -14,13 +14,13 @@ if (NOT Boost_FOUND)
 endif ()
 
 set(GCC_COVERAGE_COMPILE_FLAGS "-Wall -Wextra")
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 add_executable(robots-server robots-server.cpp
 commandline_arguments.cpp sending_messages.cpp
 serialization_deserialization.cpp event.cpp random_generator.cpp)
 
-target_link_libraries(robots-server ${Boost_LIBRARIES} Threads::Threads)
+#target_link_libraries(robots-server ${Boost_LIBRARIES} Threads::Threads)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)

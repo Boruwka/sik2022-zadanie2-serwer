@@ -1,15 +1,8 @@
 #include "commandline_arguments.h"
 
-class CommandlineArguments
-{
-    public:
-
-
-    CommandlineArguments(int argc, char *argv[])
+CommandlineArguments::CommandlineArguments(int argc, char *argv[])
     {
         boost::program_options::options_description description("App usage");
-        boost::program_options::variables_map parameter_map;
-     
         description.add_options()
             ("help,h", "Get help")
             ("bomb-timer,b", 
@@ -42,91 +35,144 @@ class CommandlineArguments
         
     }
 
-    uint16_t get_bomb_timer()
+    uint16_t CommandlineArguments::get_bomb_timer()
     {
         if (parameter_map.count("bomb-timer"))
         {
             return parameter_map["bomb-timer"].as<uint16_t>();
         }
+        else
+        {
+            fprintf(stderr, "Stop. No bomb timer given.");
+            exit(1);
+        }
     }
 
-    uint16_t get_players_count()
+    uint16_t CommandlineArguments::get_players_count()
     {
         if (parameter_map.count("players-count"))
         {
             return parameter_map["players-count"].as<uint16_t>();
         }
+        else
+        {
+            fprintf(stderr, "Stop. No players count given.");
+            exit(1);
+        }
     }
 
-    uint64_t get_turn_duration()
+    uint64_t CommandlineArguments::get_turn_duration()
     {
         if (parameter_map.count("turn-duration"))
         {
             return parameter_map["turn-duration"].as<uint64_t>();
         }
+        else
+        {
+            fprintf(stderr, "Stop. No turn duration given.");
+            exit(1);
+        }
     }
 
-    uint16_t get_explosion_radius()
+    uint16_t CommandlineArguments::get_explosion_radius()
     {
         if (parameter_map.count("explosion-radius"))
         {
             return parameter_map["explosion-radius"].as<uint16_t>();
         }
+        else
+        {
+            fprintf(stderr, "Stop. No explosion radius given.");
+            exit(1);
+        }
     }
 
-    uint16_t get_initial_blocks()
+    uint16_t CommandlineArguments::get_initial_blocks()
     {
         if (parameter_map.count("initial-blocks"))
         {
             return parameter_map["initial-blocks"].as<uint16_t>();
         }
+        else
+        {
+            fprintf(stderr, "Stop. No initial blocks given.");
+            exit(1);
+        }
     }
 
-    uint16_t get_game_length()
+    uint16_t CommandlineArguments::get_game_length()
     {
         if (parameter_map.count("game-length"))
         {
             return parameter_map["game-length"].as<uint16_t>();
         }
+        else
+        {
+            fprintf(stderr, "Stop. No game length given.");
+            exit(1);
+        }
     }
 
-    std::string get_server_name()
+    std::string CommandlineArguments::get_server_name()
     {
         if (parameter_map.count("server-name"))
         {
             return parameter_map["server-name"].as<std::string>();
         }
+        else
+        {
+            fprintf(stderr, "Stop. No server name given.");
+            exit(1);
+        }
     }
 
-    uint16_t get_port()
+    uint16_t CommandlineArguments::get_port()
     {
         if (parameter_map.count("port"))
         {
             return parameter_map["port"].as<uint16_t>();
         }
+        else
+        {
+            fprintf(stderr, "Stop. No port given.");
+            exit(1);
+        }
     }
 
-    uint32_t get_seed()
+    uint32_t CommandlineArguments::get_seed()
     {
         if (parameter_map.count("seed"))
         {
             return parameter_map["seed"].as<uint32_t>();
         }
+        else
+        {
+            fprintf(stderr, "Stop. No seed given.");
+            exit(1);
+        }
     }
 
-    uint16_t get_size_x()
+    uint16_t CommandlineArguments::get_size_x()
     {
         if (parameter_map.count("size-x"))
         {
             return parameter_map["size-x"].as<uint16_t>();
         }
+        else
+        {
+            return time(NULL); // randomowe seed
+        }
     }
 
-    uint16_t get_size_y()
+    uint16_t CommandlineArguments::get_size_y()
     {
         if (parameter_map.count("size-y"))
         {
             return parameter_map["size-y"].as<uint16_t>();
         }
+        else
+        {
+            fprintf(stderr, "Stop. No size-y given.");
+            exit(1);
+        }
     }
-};

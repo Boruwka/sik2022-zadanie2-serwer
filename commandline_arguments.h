@@ -1,11 +1,17 @@
+#ifndef _COMMANDLINE_ARGUMENTS
+#define _COMMANDLINE_ARGUMENTS
+
 #include <cstdint>
 #include <string>
+#include <boost/program_options.hpp>
 
 class CommandlineArguments
 {
     public:
 
     CommandlineArguments(int argc, char *argv[]);
+
+    boost::program_options::variables_map parameter_map;
 
     uint16_t get_bomb_timer();
     uint16_t get_players_count();
@@ -19,3 +25,5 @@ class CommandlineArguments
     uint16_t get_size_x();
     uint16_t get_size_y();
 };
+
+#endif
