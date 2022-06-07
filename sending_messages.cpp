@@ -1,70 +1,41 @@
 #include "sending_messages.h"
 
 
-ClientMessage::ClientMessage(char data[], endpoint client_endpoint)
+void push_array_to_players_deque(char data[], size_t length, PlayerId id, std::shared_ptr<GameServer> game_server)
+{
+    for (size_t i = 0; i < length; i++)
     {
-        switch(data[0])
-        {
-            case 0:
-                type = ClientMessageType::Join;
-                name = deserialize_string(&(data[1]));
-                break;
-            case 1:
-                type = ClientMessageType::PlaceBomb;
-                break;
-            case 2:
-                type = ClientMessageType::PlaceBlock;
-                break;
-            case 3:
-                type = ClientMessageType::Move;
-                direction = deserialize_direction(&(data[1]));
-                break;
-            default:
-                type = ClientMessageType::WrongMessage;
-                   
-        };
+        game_server->players[id].buffer.push(data[i]);
     }
-
-    ClientMessage::ClientMessage() {} // żeby się kompilator nie czepiał
-
-void send_message_to_player_by_socket(tcp::socket socket, char data[], size_t length);
-{
-    boost::asio::write(sock, boost::asio::buffer(data, length));
 }
-
-void push_array_to_players_deque()
-{
-    TODO
-}
-
 
 /* Pojedyncze połączenie po TCP. */
-void session(tcp::socket sock)
+void session(tcp::socket sock, std::shared_ptr<GameServer> game_server)
 {
     try
     {
         sock.set_option(tcp::no_delay(true));
-        game_server.mutex.lock();
+        game_server->mutex.lock();
         size_t length = game_server.serialize_hello(data);
-        game_server.mutex.unlock();
+        game_server->mutex.unlock();
         send_message_to_player_by_socket(socket, data, length);        
         ClientMessage join_message = wait_for_join(socket, data, length);
-        game_server.mutex.lock();
+        game_server->mutex.lock();
 
-        if (game_server.game_state == GameStateType::Lobby)
+        if (game_server->game_state == GameStateType::Lobby)
         {
-            PlayerId id = game_server.add_player(join_message, socket); 
-                    game_server.players[id].serialize_accepted_player(data);
-            for (auto player: game_server.players)
+            PlayerId id = game_server->add_player(join_message, socket); 
+                    game_server->players[id].serialize_accepted_player(data);
+            for (auto player: game_server->players)
             {
                 // wysyłamy innym info o tym
                 player.send_message(data);
             }
-            for (auto player: game_server.players)
+            for (auto player: game_server->players)
             {
                 // wysyłamy temu info o innych
                 player.serialize_accepted_player(data);
-                game_server.players[id].send_message(data);
+                game_server->players[id].send_message(data);
             }
         }
         else

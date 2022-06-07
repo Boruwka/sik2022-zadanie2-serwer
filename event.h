@@ -1,3 +1,6 @@
+#ifndef _EVENT
+#define _EVENT
+
 #include <cstddef>
 #include <vector>
 
@@ -63,3 +66,5 @@ class BlockPlaced : public Event
     
     std::size_t serialize(char data[]);
 };
+
+#endif

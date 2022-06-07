@@ -4,34 +4,12 @@
 #include <boost/asio.hpp>
 
 #include "object_definitions.h"
+#include "serialization_deserialization.h"
+#include "game_server.h"
 
 using boost::asio::ip::tcp;
 
-class GameServer;
 
-enum class ClientMessageType
-{
-    Join,
-    PlaceBomb,
-    PlaceBlock,
-    Move,
-    WrongMessage
-};
-
-class ClientMessage
-{
-    public:
-
-    ClientMessageType type;
-    std::string name; // tylko dla join
-    Direction direction; // tylko dla move
-
-    // konstruktor deserializujący
-    ClientMessage(char data[]);
-    ClientMessage();
-};
-
-void send_message_to_player_by_socket(tcp::socket socket, char data[], size_t length);
 
 void push_array_to_players_deque();
 
