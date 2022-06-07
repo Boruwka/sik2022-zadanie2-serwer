@@ -141,13 +141,13 @@ size_t serialize_bomb_exploded(BombExploded e, char data[])
     data[0] = 1;
     pos += serialize_number(&(data[pos]), e.id, sizeof(e.id));
     pos += serialize_number(&(data[pos]), e.robots_destroyed.size(), len_of_sizetype);
-    for (auto player_id: e.robots_destroyed)
+    for (auto& player_id: e.robots_destroyed)
     {
         pos += serialize_number(&(data[pos]), player_id, sizeof(player_id));
     }
 
     pos += serialize_number(&(data[pos]), e.blocks_destroyed.size(), len_of_sizetype);
-    for (auto block_position: e.blocks_destroyed)
+    for (auto& block_position: e.blocks_destroyed)
     {
         pos += serialize_position(&(data[pos]), player_id);
     }
@@ -157,7 +157,7 @@ size_t serialize_bomb_exploded(BombExploded e, char data[])
 }
 
 
-size_t serialize_event(Event e, char data[])
+size_t serialize_event(char data[], Event e)
 {
     size_t pos = 1;
 
@@ -185,4 +185,10 @@ size_t serialize_event(Event e, char data[])
 [1] BombExploded { id: BombId, robots_destroyed: List<PlayerId>, blocks_destroyed: List<Position> },
 [2] PlayerMoved { id: PlayerId, position: Position },
 [3] BlockPlaced { position: Position }, */
+}
+
+
+size_t serialize_game_ended(char data[], std::map<PlayerId, Score> scores)
+{
+    TODO
 }

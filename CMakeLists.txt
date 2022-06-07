@@ -14,7 +14,7 @@ if (NOT Boost_FOUND)
 endif ()
 
 set(GCC_COVERAGE_COMPILE_FLAGS "-Wall -Wextra")
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 add_executable(robots-server robots-server.cpp
 commandline_arguments.cpp sending_messages.cpp

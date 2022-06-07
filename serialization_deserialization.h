@@ -20,4 +20,6 @@ size_t serialize_direction(Direction direction, char data[]);
 /* Deserializuje kierunek. */
 Direction deserialize_direction(char data[]);
 
-size_t serialize_event(Event e);
+size_t serialize_event(char data[], Event e);
+
+size_t serialize_game_ended(char data[], std::map<PlayerId, Score> scores);

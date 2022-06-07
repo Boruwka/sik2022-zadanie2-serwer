@@ -46,6 +46,8 @@ class ClientMessage
                    
         };
     }
+
+    ClientMessage() {} // żeby się kompilator nie czepiał
 };
 
 void send_message_to_player_by_socket(tcp::socket socket, char data[], size_t length);

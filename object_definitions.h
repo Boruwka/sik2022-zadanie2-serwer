@@ -2,6 +2,7 @@
 #define _OBJECT_DEFINITIONS
 
 #include <cstdint>
+#include <set>
 
 const uint16_t BUFFER_LEN = 65535;
 const size_t len_of_sizetype = 4; // długość rozmiaru listy/mapy podczas serializacji
@@ -24,6 +25,8 @@ class Position
 
     uint16_t x;
     uint16_t y;
+
+    Position(uint16_t x, uint16_t);
 };
 
 class Bomb
@@ -31,15 +34,19 @@ class Bomb
     public:
 
     BombId id;
-    uint16_t time_to_explode;
+    uint16_t timer;
     Position position;
     
-    Bomb(BombId id, uint16_t bomb_timer, Position position)
-    {
-        this->id = id;
-        this->time_to_explode = bomb_timer;
-        this->position = position;
-    }
+    Bomb(BombId id, uint16_t bomb_timer, Position position);
+};
+
+class Square
+{
+    public:
+    
+    std::set<BombId> bombs;
+    std::set<PlayerId> players;
+    bool block;
 };
 
 

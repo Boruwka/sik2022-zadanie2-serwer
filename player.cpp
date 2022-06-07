@@ -4,9 +4,9 @@ class Player
 {
     public: 
 
-    void send_message(char data[])
+    void send_message(char data[], size_t length)
     {
-        send_message_to_player_by_socket(sock, data);
+        send_message_to_player_by_socket(sock, data, length);
     }
 
     size_t serialize_player(char data[])
@@ -18,4 +18,9 @@ class Player
     {
         TODO
     }
-}
+
+    bool get_first_message_from_deque(ClientMessage& mess);
+    {
+        TODO  
+    }
+};

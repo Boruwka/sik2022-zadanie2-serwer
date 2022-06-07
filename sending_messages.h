@@ -1,3 +1,6 @@
+#ifndef _SENDING_MESSAGES
+#define _SENDING_MESSAGES
+
 #include <boost/asio.hpp>
 
 using boost::asio::ip::tcp;
@@ -21,6 +24,7 @@ class ClientMessage
 
     // konstruktor deserializujący
     ClientMessage(char data[]);
+    ClientMessage();
 };
 
 void send_message_to_player_by_socket(tcp::socket socket, char data[], size_t length);
@@ -35,3 +39,5 @@ void session(tcp::socket sock);
 void run_tcp_server(boost::asio::io_context& io_context,        
     std::string address,
     unsigned short port);
+
+#endif
